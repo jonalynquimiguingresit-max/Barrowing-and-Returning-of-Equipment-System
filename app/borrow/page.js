@@ -5,8 +5,8 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useEquipment } from '@/lib/useFirebase';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { useState, useSearchParams } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function BorrowPage() {
   const { user } = useAuthContext();
