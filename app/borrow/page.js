@@ -5,10 +5,10 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useEquipment } from '@/lib/useFirebase';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function BorrowPage() {
+function BorrowForm() {
   const { user } = useAuthContext();
   const { equipment } = useEquipment();
   const searchParams = useSearchParams();
@@ -182,5 +182,13 @@ export default function BorrowPage() {
         </div>
       </div>
     </ProtectedLayout>
+  );
+}
+
+export default function BorrowPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BorrowForm />
+    </Suspense>
   );
 }

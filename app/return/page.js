@@ -5,9 +5,9 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
 import { doc, updateDoc, serverTimestamp, collection, getDocs, query, where } from 'firebase/firestore';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 
-export default function ReturnPage() {
+function ReturnForm() {
   const { user } = useAuthContext();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -225,5 +225,13 @@ export default function ReturnPage() {
         </div>
       </div>
     </ProtectedLayout>
+  );
+}
+
+export default function ReturnPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ReturnForm />
+    </Suspense>
   );
 }
