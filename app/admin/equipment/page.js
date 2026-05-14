@@ -1,12 +1,14 @@
 'use client';
 
 import ProtectedLayout from '@/components/ProtectedLayout';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, deleteDoc, doc, updateDoc, getDocs, serverTimestamp } from 'firebase/firestore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function AdminEquipmentPage() {
+  const { isAdmin, loading: authLoading } = useAuthContext();
   const [equipment, setEquipment] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -22,6 +24,82 @@ export default function AdminEquipmentPage() {
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Function to set up admin user (temporary - remove after setup)
+  const setupAdminUser = async () => {
+    try {
+      const adminEmail = 'admin@school.local';
+      const adminPassword = 'Admin@123';
+
+      // Show setup instructions
+      const instructions = `
+ADMIN ACCOUNT SETUP:
+
+1. Go to the registration page
+2. Register with:
+   Email: ${adminEmail}
+   Password: ${adminPassword}
+
+3. After registration, this account will be created as a regular user
+4. To make it admin, you need to manually update the user document in Firestore:
+
+   - Go to Firebase Console → Firestore Database
+   - Find the users collection
+   - Find the document with email: ${adminEmail}
+   - Add/update the 'role' field to: "admin"
+
+5. Then refresh this page and you'll have admin access.
+
+Alternatively, you can promote any existing user to admin by updating their role field in Firestore.
+      `;
+
+      alert(instructions);
+    } catch (error) {
+      console.error('Error setting up admin:', error);
+    }
+  };
+
+  // Check admin access
+  if (authLoading) {
+    return (
+      <ProtectedLayout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </ProtectedLayout>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <ProtectedLayout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-4">🚫</div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Access Denied</h1>
+            <p className="text-gray-600 mb-8">You don't have permission to access the admin panel.</p>
+            <div className="space-y-4">
+              <button
+                onClick={setupAdminUser}
+                className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded-lg transition mr-4"
+              >
+                Setup Admin Account
+              </button>
+              <Link
+                href="/dashboard"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition inline-block"
+              >
+                Go to Dashboard
+              </Link>
+            </div>
+          </div>
+        </div>
+      </ProtectedLayout>
+    );
+  }
 
   const loadEquipment = async () => {
     try {

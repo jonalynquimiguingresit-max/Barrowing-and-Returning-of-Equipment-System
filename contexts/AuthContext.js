@@ -2,21 +2,44 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/lib/useAuth';
+import { db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const { user, loading, error, login, logout, register } = useAuth();
   const [userRole, setUserRole] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    if (user) {
-      // Default role - in production, fetch from Firestore
-      setUserRole('user');
-    } else {
-      setUserRole(null);
-    }
+    const fetchUserRole = async () => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUserRole(userData.role || 'user');
+            setUserProfile(userData);
+          } else {
+            // User document doesn't exist, create with default role
+            setUserRole('user');
+            setUserProfile({ email: user.email, role: 'user' });
+          }
+        } catch (error) {
+          console.error('Error fetching user role:', error);
+          setUserRole('user'); // Default to user role on error
+        }
+      } else {
+        setUserRole(null);
+        setUserProfile(null);
+      }
+    };
+
+    fetchUserRole();
   }, [user]);
+
+  const isAdmin = userRole === 'admin';
 
   return (
     <AuthContext.Provider
@@ -28,6 +51,8 @@ export function AuthProvider({ children }) {
         logout,
         register,
         userRole,
+        userProfile,
+        isAdmin,
       }}
     >
       {children}

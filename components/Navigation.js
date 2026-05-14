@@ -6,7 +6,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useState } from 'react';
 
 export default function Navigation() {
-  const { user, logout, loading } = useAuthContext();
+  const { user, logout, loading, isAdmin } = useAuthContext();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -61,6 +61,14 @@ export default function Navigation() {
             >
               History
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin/equipment"
+                className="bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded transition font-semibold"
+              >
+                Admin Panel
+              </Link>
+            )}
             <span className="text-sm text-blue-100">{user?.email}</span>
             <button
               onClick={handleLogout}
@@ -118,6 +126,14 @@ export default function Navigation() {
             >
               History
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin/equipment"
+                className="block bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded transition font-semibold"
+              >
+                Admin Panel
+              </Link>
+            )}
             <button
               onClick={handleLogout}
               className="w-full text-left bg-red-600 hover:bg-red-700 px-3 py-2 rounded transition font-semibold"
