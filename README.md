@@ -1,33 +1,178 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Equipment Borrowing and Returning System 📦
 
-## Getting Started
+A modern web-based platform for managing equipment inventory and borrowing records. Built with Next.js, Firebase, and Tailwind CSS.
 
-First, run the development server:
+**🌐 Live Demo:** https://midtermproject-two-beryl.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 16+
+- npm or yarn
+- Firebase account
+
+### Installation
+
+1. **Clone & Install**
+   ```bash
+   git clone https://github.com/jonalynquimiguingresit-max/Barrowing-and-Returning-of-Equipment-System.git
+   cd midtermproject
+   npm install
+   ```
+
+2. **Setup Firebase**
+   - Go to https://console.firebase.google.com
+   - Create a new project
+   - Enable Firestore Database
+   - Enable Email/Password Authentication
+   - Copy your Firebase config
+
+3. **Configure Environment**
+   ```bash
+   cp .env.local.example .env.local
+   # Edit .env.local with your Firebase credentials
+   ```
+
+4. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open in Browser**
+   ```
+   http://localhost:3000
+   ```
+
+---
+
+## ✨ Features
+
+- ✅ **User Authentication** - Secure login/register with Firebase
+- ✅ **Dashboard** - Statistics and quick actions
+- ✅ **Equipment Inventory** - Browse and search equipment
+- ✅ **Borrow System** - Request to borrow equipment
+- ✅ **Return Management** - Track equipment returns and condition
+- ✅ **History** - View borrowing transaction history
+- ✅ **Admin Panel** - Manage equipment (add/edit/delete)
+- ✅ **Responsive Design** - Works on mobile, tablet, desktop
+- ✅ **Real-time Updates** - Live data from Firestore
+
+---
+
+## 📋 Main Pages
+
+| Page | Route | Description |
+|------|-------|-------------|
+| Login | `/login` | User authentication |
+| Dashboard | `/dashboard` | Main overview & statistics |
+| Equipment | `/equipment` | Browse all equipment |
+| Borrow | `/borrow` | Borrow equipment form |
+| My Borrows | `/my-borrows` | Active & returned items |
+| Return | `/return` | Return equipment form |
+| History | `/history` | Transaction history |
+| Admin | `/admin/equipment` | Equipment management |
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js 14, React 18, Tailwind CSS
+- **Backend:** Firebase Firestore, Firebase Authentication
+- **Deployment:** Vercel
+- **Version Control:** GitHub
+
+---
+
+## 📚 Documentation
+
+For comprehensive documentation, see [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md)
+
+Topics covered:
+- Project overview
+- Database schema
+- All features explained
+- How to run locally
+- Firebase setup
+- Troubleshooting
+
+---
+
+## 🔐 Environment Setup
+
+Create `.env.local` with your Firebase credentials:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🎯 Project Requirements Met
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+✅ Interactive user interface (forms, dashboards, navigation)  
+✅ Data management (CRUD operations)  
+✅ Cloud backend integration (Firebase)  
+✅ User authentication and access control  
+✅ Responsive and user-friendly design  
+✅ Clean, organized code  
+✅ Deployed on Vercel  
+✅ GitHub repository with version control  
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📝 Build & Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Build for Production
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Deploy to Vercel
+```bash
+vercel deploy
+```
+
+Or connect your GitHub repo to Vercel for automatic deployments.
+
+---
+
+## 🧪 Testing
+
+1. Register a new account
+2. Navigate to equipment list
+3. Borrow an item
+4. View in "My Borrows"
+5. Return the equipment
+6. Check transaction history
+
+---
+
+## 📞 Support
+
+For issues, questions, or suggestions:
+1. Check [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md) troubleshooting section
+2. Review Firebase security rules
+3. Check browser console for errors
+4. Create an issue on GitHub
+
+---
+
+## 📄 License
+
+Educational project - May 2026
+
+---
+
+**Project by:** Avegail Lorainne P. Almirante  
+**GitHub:** https://github.com/jonalynquimiguingresit-max/Barrowing-and-Returning-of-Equipment-System  
+**Live Demo:** https://midtermproject-two-beryl.vercel.app
 
 ## Deploy on Vercel
 
