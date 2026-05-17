@@ -28,60 +28,81 @@ export default function Navigation() {
   }
 
   return (
-    <nav className="bg-blue-600 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4">
+    <nav className="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg backdrop-blur-sm bg-opacity-95">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold">⚙️ Equipment System</span>
+          <Link href="/dashboard" className="flex items-center space-x-3 group">
+            <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center group-hover:bg-opacity-30 transition-all duration-200">
+              <span className="text-xl">⚙️</span>
+            </div>
+            <div>
+              <span className="text-xl font-bold tracking-tight">EquipTrack</span>
+              <div className="text-xs text-blue-100 opacity-75">Management System</div>
+            </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-1">
             <Link
               href="/dashboard"
-              className="hover:bg-blue-700 px-3 py-2 rounded transition"
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-25 hover:text-blue-900 transition-all duration-200 font-medium"
             >
-              Dashboard
+              <span>🏠</span>
+              <span>Dashboard</span>
             </Link>
             <Link
               href="/equipment"
-              className="hover:bg-blue-700 px-3 py-2 rounded transition"
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-25 hover:text-blue-900 transition-all duration-200 font-medium"
             >
-              Equipment
+              <span>🔧</span>
+              <span>Equipment</span>
             </Link>
             <Link
               href="/my-borrows"
-              className="hover:bg-blue-700 px-3 py-2 rounded transition"
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-25 hover:text-blue-900 transition-all duration-200 font-medium"
             >
-              My Borrows
+              <span>📋</span>
+              <span>My Borrows</span>
             </Link>
             <Link
               href="/history"
-              className="hover:bg-blue-700 px-3 py-2 rounded transition"
+              className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-25 hover:text-blue-900 transition-all duration-200 font-medium"
             >
-              History
+              <span>📊</span>
+              <span>History</span>
             </Link>
             {isAdmin && (
               <Link
                 href="/admin/equipment"
-                className="bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded transition font-semibold"
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-blue-900 transition-all duration-200 font-semibold shadow-md"
               >
-                Admin Panel
+                <span>⚡</span>
+                <span>Admin Panel</span>
               </Link>
             )}
-            <span className="text-sm text-blue-100">{user?.email}</span>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition font-semibold"
-            >
-              Logout
-            </button>
+
+            <div className="ml-4 pl-4 border-l border-white border-opacity-20">
+              <div className="flex items-center space-x-3">
+                <div className="text-right">
+                  <div className="text-sm font-medium">{user?.email?.split('@')[0]}</div>
+                  <div className="text-xs text-blue-100 opacity-75">
+                    {isAdmin ? 'Administrator' : 'User'}
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md btn-hover"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden focus:outline-none"
+            className="md:hidden p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
           >
             <svg
               className="w-6 h-6"
@@ -89,57 +110,88 @@ export default function Navigation() {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+              {mobileMenuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
             </svg>
           </button>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden pb-4 space-y-2">
+          <div className="md:hidden pb-4 space-y-1 animate-fade-in">
             <Link
               href="/dashboard"
-              className="block hover:bg-blue-700 px-3 py-2 rounded transition"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              onClick={() => setMobileMenuOpen(false)}
             >
-              Dashboard
+              <span>🏠</span>
+              <span>Dashboard</span>
             </Link>
             <Link
               href="/equipment"
-              className="block hover:bg-blue-700 px-3 py-2 rounded transition"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              onClick={() => setMobileMenuOpen(false)}
             >
-              Equipment
+              <span>🔧</span>
+              <span>Equipment</span>
             </Link>
             <Link
               href="/my-borrows"
-              className="block hover:bg-blue-700 px-3 py-2 rounded transition"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              onClick={() => setMobileMenuOpen(false)}
             >
-              My Borrows
+              <span>📋</span>
+              <span>My Borrows</span>
             </Link>
             <Link
               href="/history"
-              className="block hover:bg-blue-700 px-3 py-2 rounded transition"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              onClick={() => setMobileMenuOpen(false)}
             >
-              History
+              <span>📊</span>
+              <span>History</span>
             </Link>
             {isAdmin && (
               <Link
                 href="/admin/equipment"
-                className="block bg-yellow-600 hover:bg-yellow-700 px-3 py-2 rounded transition font-semibold"
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-blue-900 transition-all duration-200 font-semibold"
+                onClick={() => setMobileMenuOpen(false)}
               >
-                Admin Panel
+                <span>⚡</span>
+                <span>Admin Panel</span>
               </Link>
             )}
-            <button
-              onClick={handleLogout}
-              className="w-full text-left bg-red-600 hover:bg-red-700 px-3 py-2 rounded transition font-semibold"
-            >
-              Logout
-            </button>
+
+            <div className="border-t border-white border-opacity-20 mt-4 pt-4">
+              <div className="px-4 py-2">
+                <div className="text-sm font-medium">{user?.email?.split('@')[0]}</div>
+                <div className="text-xs text-blue-100 opacity-75">
+                  {isAdmin ? 'Administrator' : 'User'}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full text-left bg-red-500 hover:bg-red-600 px-4 py-3 rounded-lg transition-all duration-200 font-medium mt-2"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         )}
       </div>
