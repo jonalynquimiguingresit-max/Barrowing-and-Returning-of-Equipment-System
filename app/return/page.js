@@ -3,7 +3,7 @@
 import ProtectedLayout from '@/components/ProtectedLayout';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
-import { doc, updateDoc, serverTimestamp, collection, getDocs, query, where } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, collection, getDocs, query, where, getDoc } from 'firebase/firestore';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
 
@@ -87,16 +87,27 @@ function ReturnForm() {
         updatedAt: serverTimestamp(),
       });
 
-      // Update equipment status back to available (or lost if reported)
+      // Update equipment available count and status on return
       try {
         const equipmentRef = doc(db, 'equipment', borrowRecord.equipmentId);
-        const equipmentStatus = formData.condition === 'lost' ? 'lost' : 'available';
-        await updateDoc(equipmentRef, {
+        const snap = await getDoc(equipmentRef);
+        const data = snap.exists() ? snap.data() : {};
+        const qty = data.quantity != null ? parseInt(data.quantity) : 1;
+        const oldAvailable = data.availableCount != null ? parseInt(data.availableCount) : 0;
+        // On return, increase available count by 1 but do not exceed total quantity
+        let newAvailable = oldAvailable + 1;
+        if (newAvailable > qty) newAvailable = qty;
+        const equipmentStatus = formData.condition === 'lost' ? 'lost' : (newAvailable > 0 ? 'available' : 'borrowed');
+        const updatePayload = {
+          availableCount: newAvailable,
           status: equipmentStatus,
-          currentBorrower: null,
-          currentBorrowerEmail: null,
           updatedAt: serverTimestamp(),
-        });
+        };
+        if (qty === 1) {
+          updatePayload.currentBorrower = null;
+          updatePayload.currentBorrowerEmail = null;
+        }
+        await updateDoc(equipmentRef, updatePayload);
       } catch (err) {
         console.error('Failed to update equipment status on return:', err);
       }

@@ -12,7 +12,11 @@ export default function DashboardPage() {
   const stats = {
     total: equipment.length,
     available: equipment.filter((e) => e.status === 'available').length,
-    borrowed: equipment.filter((e) => e.status !== 'available').length,
+    borrowed: equipment.reduce((sum, e) => {
+      const qty = e.quantity != null ? parseInt(e.quantity) : 1;
+      const available = e.availableCount != null ? parseInt(e.availableCount) : qty;
+      return sum + Math.max(0, qty - available);
+    }, 0),
   };
 
   return (

@@ -3,7 +3,7 @@
 import ProtectedLayout from '@/components/ProtectedLayout';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, deleteDoc, doc, updateDoc, getDocs, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, updateDoc, getDocs, getDoc, serverTimestamp } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
@@ -102,19 +102,34 @@ export default function AdminEquipmentPage() {
 
     try {
       if (editingId) {
-        // Update existing equipment
+        // Update existing equipment with quantity adjustments
         const docRef = doc(db, 'equipment', editingId);
+        const snap = await getDoc(docRef);
+        const existing = snap.exists() ? snap.data() : {};
+        const oldQuantity = existing.quantity ? parseInt(existing.quantity) : 1;
+        const oldAvailable = existing.availableCount != null ? parseInt(existing.availableCount) : oldQuantity;
+        const newQuantity = parseInt(formData.quantity);
+        const delta = newQuantity - oldQuantity;
+        let newAvailable = oldAvailable + delta;
+        if (newAvailable > newQuantity) newAvailable = newQuantity;
+        if (newAvailable < 0) newAvailable = 0;
+
         await updateDoc(docRef, {
           ...formData,
-          quantity: parseInt(formData.quantity),
+          quantity: newQuantity,
+          availableCount: newAvailable,
+          status: newAvailable > 0 ? 'available' : 'borrowed',
           updatedAt: serverTimestamp(),
         });
         setSuccess('Equipment updated successfully!');
       } else {
         // Add new equipment
+        const qty = parseInt(formData.quantity);
         await addDoc(collection(db, 'equipment'), {
           ...formData,
-          quantity: parseInt(formData.quantity),
+          quantity: qty,
+          availableCount: qty,
+          status: qty > 0 ? 'available' : 'borrowed',
           createdAt: serverTimestamp(),
         });
         setSuccess('Equipment added successfully!');
@@ -325,6 +340,9 @@ export default function AdminEquipmentPage() {
                         Quantity
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                        Available
+                      </th>
+                      <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                         Status
                       </th>
                       <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
@@ -338,6 +356,7 @@ export default function AdminEquipmentPage() {
                         <td className="px-6 py-4 text-sm font-medium text-gray-900">{item.name}</td>
                         <td className="px-6 py-4 text-sm text-gray-600">{item.category || 'N/A'}</td>
                         <td className="px-6 py-4 text-sm text-gray-600">{item.quantity || 1}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{item.availableCount != null ? item.availableCount : (item.quantity || 1)}</td>
                         <td className="px-6 py-4 text-sm">
                           <span
                             className={`px-3 py-1 rounded-full text-sm font-semibold ${

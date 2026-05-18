@@ -12,7 +12,13 @@ export default function EquipmentPage() {
 
   const filteredEquipment = equipment.filter((item) => {
     const matchesSearch = item.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' ? true : item.status === filterStatus;
+    const availableCount = item.availableCount != null ? item.availableCount : (item.quantity || 1);
+    const matchesStatus =
+      filterStatus === 'all'
+        ? true
+        : filterStatus === 'available'
+        ? availableCount > 0
+        : availableCount === 0;
     return matchesSearch && matchesStatus;
   });
 
@@ -115,12 +121,14 @@ export default function EquipmentPage() {
                       </div>
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          item.status === 'available'
+                          (item.availableCount != null ? item.availableCount : (item.quantity || 1)) > 0
                             ? 'bg-green-100 text-green-800'
                             : 'bg-orange-100 text-orange-800'
                         }`}
                       >
-                        {item.status === 'available' ? 'Available' : 'Borrowed'}
+                        {(item.availableCount != null ? item.availableCount : (item.quantity || 1)) > 0
+                          ? 'Available'
+                          : 'Borrowed'}
                       </span>
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-1">{item.name}</h3>
@@ -133,9 +141,14 @@ export default function EquipmentPage() {
                       {item.description || 'No description available'}
                     </p>
 
+                    <div className="mb-3 text-sm text-gray-700">
+                      <strong>Quantity:</strong> {item.quantity || 1} · <strong>Available:</strong>{' '}
+                      {item.availableCount != null ? item.availableCount : (item.quantity || 1)}
+                    </div>
+
                     {/* Action Button */}
                     <div className="flex justify-end">
-                      {item.status === 'available' ? (
+                      {((item.availableCount != null ? item.availableCount : (item.quantity || 1)) > 0) ? (
                         <Link
                           href={`/borrow?equipment=${item.id}`}
                           className="inline-flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 btn-hover shadow-md group-hover:shadow-lg"

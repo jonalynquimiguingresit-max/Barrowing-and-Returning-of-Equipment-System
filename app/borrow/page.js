@@ -4,7 +4,7 @@ import ProtectedLayout from '@/components/ProtectedLayout';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useEquipment } from '@/lib/useFirebase';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -25,7 +25,7 @@ function BorrowForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const availableEquipment = equipment.filter((e) => e.status === 'available');
+  const availableEquipment = equipment.filter((e) => (e.availableCount != null ? e.availableCount : (e.quantity || 1)) > 0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,18 +69,31 @@ function BorrowForm() {
         createdAt: serverTimestamp(),
       });
 
-      // Mark equipment as borrowed and set current borrower info
+      // Update equipment available count and status
       try {
         const equipmentRef = doc(db, 'equipment', formData.equipmentId);
-        await updateDoc(equipmentRef, {
-          status: 'borrowed',
-          currentBorrower: user.uid,
-          currentBorrowerEmail: user.email,
+        const snap = await getDoc(equipmentRef);
+        const data = snap.exists() ? snap.data() : {};
+        const qty = data.quantity != null ? parseInt(data.quantity) : 1;
+        const available = data.availableCount != null ? parseInt(data.availableCount) : qty;
+        if (available <= 0) {
+          throw new Error('Selected equipment is no longer available');
+        }
+        const newAvailable = available - 1;
+        const newStatus = newAvailable > 0 ? 'available' : 'borrowed';
+        const updatePayload = {
+          availableCount: newAvailable,
+          status: newStatus,
           updatedAt: serverTimestamp(),
-        });
+        };
+        // If item has quantity 1, set currentBorrower for compatibility
+        if (qty === 1) {
+          updatePayload.currentBorrower = user.uid;
+          updatePayload.currentBorrowerEmail = user.email;
+        }
+        await updateDoc(equipmentRef, updatePayload);
       } catch (err) {
-        // Non-fatal: log but allow borrow record creation to succeed
-        console.error('Failed to update equipment status:', err);
+        console.error('Failed to update equipment availability:', err);
       }
 
       setSuccess('Equipment borrowed successfully! You can now manage your borrowed items.');
