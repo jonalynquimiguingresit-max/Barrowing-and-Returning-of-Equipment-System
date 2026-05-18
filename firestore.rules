@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuth() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users may read basic user info; users can manage their own profile; admins can manage all
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow create: if request.auth.uid == userId;
+      allow update, delete: if request.auth.uid == userId || isAdmin();
+    }
+
+    // Equipment: anyone can read. Writes are allowed only when:
+    // - an admin performs the write, OR
+    // - a user transitions an item from 'available' -> 'borrowed' while setting themselves
+    //   as the `currentBorrower`, OR
+    // - the current borrower transitions the item back to 'available' and clears borrower fields.
+    match /equipment/{equipmentId} {
+      allow read: if true;
+
+      allow write: if isAdmin() || (
+        isAuth() && (
+          // Borrowing: previous status must be 'available' and new status 'borrowed',
+          // and the requester must set themselves as the currentBorrower.
+          (resource.data.status == 'available'
+            && request.resource.data.status == 'borrowed'
+            && request.resource.data.currentBorrower == request.auth.uid)
+          ||
+          // Returning: previous currentBorrower must match requester, and they clear it and set available
+          (resource.data.currentBorrower == request.auth.uid
+            && request.resource.data.currentBorrower == null
+            && request.resource.data.status == 'available')
+        )
+      );
+    }
+
+    // Borrow records: creation allowed by authenticated user when they set userId to themselves
+    // and status must be 'borrowed'. Reads/updates allowed to owner and admins.
+    match /borrowRecords/{recordId} {
+      allow create: if isAuth()
+        && request.auth.uid == request.resource.data.userId
+        && request.resource.data.status == 'borrowed'
+        && request.resource.data.equipmentId is string;
+
+      allow read, update, delete: if isAuth() && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+    }
+  }
+}
