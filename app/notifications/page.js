@@ -63,6 +63,34 @@ export default function NotificationsPage() {
     }
   };
 
+  // Remove stale action_required notifications whose related borrow request is no longer pending
+  React.useEffect(() => {
+    if (loading || !notifications || notifications.length === 0) return;
+    const cleanup = async () => {
+      for (const notification of notifications) {
+        try {
+          if (!notification.relatedId) continue;
+          if (notification.type !== 'action_required') continue;
+          const borrowDocRef = doc(db, 'borrowRecords', notification.relatedId);
+          const borrowSnapshot = await getDoc(borrowDocRef);
+          if (!borrowSnapshot.exists()) {
+            // related record missing -> remove notification
+            await deleteNotification(notification.id);
+            continue;
+          }
+          const borrowData = borrowSnapshot.data();
+          if (borrowData.status !== 'requested') {
+            // no longer pending, remove the action notification
+            await deleteNotification(notification.id);
+          }
+        } catch (err) {
+          console.error('Failed to cleanup stale notification', notification?.id, err);
+        }
+      }
+    };
+    cleanup();
+  }, [notifications, loading]);
+
   const handleApprove = async (notification) => {
     if (!notification.relatedId || processing) return;
     setProcessing(true);
