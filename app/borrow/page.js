@@ -11,7 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { sendNotificationToAdmins } from '@/lib/notificationService';
 
 function BorrowForm() {
-  const { user } = useAuthContext();
+  const { user, userProfile } = useAuthContext();
   const { equipment } = useEquipment();
   const { notify } = useNotification();
   const searchParams = useSearchParams();
@@ -59,9 +59,11 @@ function BorrowForm() {
       }
 
       // Create borrow request in Firestore for admin approval
+      const borrowerName = userProfile?.name || user.email?.split('@')[0] || 'Unknown user';
       const borrowRequestRef = await addDoc(collection(db, 'borrowRecords'), {
         userId: user.uid,
         userEmail: user.email,
+        userName: borrowerName,
         equipmentId: formData.equipmentId,
         equipmentName: selectedEquipment.name,
         borrowDate: new Date(formData.borrowDate),
@@ -74,7 +76,7 @@ function BorrowForm() {
 
       try {
         await sendNotificationToAdmins(
-          `Borrow request for "${selectedEquipment.name}" by ${user.email} requires approval.`,
+          `Borrow request for "${selectedEquipment.name}" by ${borrowerName} requires approval.`,
           'action_required',
           borrowRequestRef.id
         );

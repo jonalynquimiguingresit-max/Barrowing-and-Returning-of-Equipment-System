@@ -23,8 +23,9 @@ export function AuthProvider({ children }) {
             setUserProfile(userData);
           } else {
             // User document doesn't exist, create with default role
+            const defaultName = user.email?.split('@')[0] || 'User';
             setUserRole('user');
-            setUserProfile({ email: user.email, role: 'user' });
+            setUserProfile({ email: user.email, role: 'user', name: defaultName });
           }
         } catch (error) {
           console.error('Error fetching user role:', error);

@@ -7,7 +7,7 @@ import NotificationBell from '@/components/NotificationBell';
 import { useState } from 'react';
 
 export default function Navigation() {
-  const { user, logout, loading, isAdmin } = useAuthContext();
+  const { user, logout, loading, isAdmin, userProfile } = useAuthContext();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -86,7 +86,7 @@ export default function Navigation() {
             <div className="ml-4 pl-4 border-l border-white border-opacity-20">
               <div className="flex items-center space-x-3">
                 <div className="text-right">
-                  <div className="text-sm font-medium">{user?.email?.split('@')[0]}</div>
+                  <div className="text-sm font-medium">{userProfile?.name || user?.email?.split('@')[0]}</div>
                   <div className="text-xs text-blue-100 opacity-75">
                     {isAdmin ? 'Administrator' : 'User'}
                   </div>

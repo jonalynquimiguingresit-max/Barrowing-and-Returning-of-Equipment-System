@@ -6,6 +6,8 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
 export default function RegisterPage() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -17,6 +19,11 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('First name and last name are required');
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -31,7 +38,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(email, password);
+      await register(email, password, firstName.trim(), lastName.trim());
       router.push('/dashboard');
     } catch (err) {
       setError(err.message || 'Failed to create account');
@@ -70,6 +77,34 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                  placeholder="First name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                  placeholder="Last name"
+                />
+              </div>
+            </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
