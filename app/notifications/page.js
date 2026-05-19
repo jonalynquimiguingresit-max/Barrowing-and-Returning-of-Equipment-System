@@ -19,7 +19,20 @@ export default function NotificationsPage() {
     const message = approved
       ? 'Your equipment borrowing request has been approved.'
       : 'Your equipment borrowing request has been rejected.';
-    await sendUserNotification(borrowReq.userId, message, approved ? 'success' : 'error', borrowReq.id);
+    try {
+      const notifId = await sendUserNotification(borrowReq.userId, message, approved ? 'success' : 'error', borrowReq.id);
+      if (!notifId) throw new Error('sendUserNotification returned no id');
+      return notifId;
+    } catch (err) {
+      console.error('Failed to send borrower notification:', err);
+      // notify admin in UI that borrower notification failed
+      try {
+        notify({ type: 'error', message: 'Failed to notify borrower about this decision.' });
+      } catch (e) {
+        console.error('Notification UI unavailable:', e);
+      }
+      throw err;
+    }
   };
 
   const handleApprove = async (notification) => {
