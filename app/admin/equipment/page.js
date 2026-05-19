@@ -122,6 +122,7 @@ export default function AdminEquipmentPage() {
           updatedAt: serverTimestamp(),
         });
         setSuccess('Equipment updated successfully!');
+        notify({ type: 'success', message: 'Equipment updated successfully!' });
       } else {
         // Add new equipment
         const qty = parseInt(formData.quantity);
@@ -133,6 +134,7 @@ export default function AdminEquipmentPage() {
           createdAt: serverTimestamp(),
         });
         setSuccess('Equipment added successfully!');
+        notify({ type: 'success', message: 'Equipment added successfully!' });
       }
 
       setFormData({
@@ -147,6 +149,7 @@ export default function AdminEquipmentPage() {
       loadEquipment();
     } catch (err) {
       setError(err.message || 'Failed to save equipment');
+      notify({ type: 'error', message: err.message || 'Failed to save equipment' });
     }
   };
 
@@ -155,9 +158,11 @@ export default function AdminEquipmentPage() {
       try {
         await deleteDoc(doc(db, 'equipment', id));
         setSuccess('Equipment deleted successfully!');
+        notify({ type: 'success', message: 'Equipment deleted successfully!' });
         loadEquipment();
       } catch (err) {
         setError('Failed to delete equipment');
+        notify({ type: 'error', message: 'Failed to delete equipment' });
       }
     }
   };
@@ -320,6 +325,20 @@ export default function AdminEquipmentPage() {
           )}
 
           {/* Equipment List */}
+          {(success || error) && (
+            <div className="mb-6">
+              {success && (
+                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">
+                  {success}
+                </div>
+              )}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                  {error}
+                </div>
+              )}
+            </div>
+          )}
           <div className="bg-white rounded-lg shadow overflow-hidden">
             {loading ? (
               <div className="p-6 text-center text-gray-600">Loading equipment...</div>
