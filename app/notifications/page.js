@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 
 import { useState } from 'react';
 import ProtectedLayout from '@/components/ProtectedLayout';
@@ -7,11 +7,13 @@ import { useNotifications } from '@/lib/useNotifications';
 import { markNotificationRead, sendUserNotification } from '@/lib/notificationService';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useNotification } from '@/contexts/NotificationContext';
 
 export default function NotificationsPage() {
   const { user, isAdmin } = useAuthContext();
-  const { notifications, loading } = useNotifications(user?.uid);
+  const { notifications, loading } = useNotifications(user?.uid, isAdmin);
   const [processing, setProcessing] = useState(false);
+  const { notify } = useNotification();
 
   const createActionNotification = async (borrowReq, approved) => {
     const message = approved
@@ -64,6 +66,7 @@ export default function NotificationsPage() {
       });
       await createActionNotification({ ...borrowData, id: borrowSnapshot.id }, true);
       await markNotificationRead(notification.id);
+      notify({ type: 'success', message: 'Borrowing request approved successfully.' });
     } catch (err) {
       console.error(err);
       alert(err.message || 'Unable to approve request');
@@ -92,6 +95,7 @@ export default function NotificationsPage() {
       });
       await createActionNotification({ ...borrowData, id: borrowSnapshot.id }, false);
       await markNotificationRead(notification.id);
+      notify({ type: 'success', message: 'Borrowing request rejected successfully.' });
     } catch (err) {
       console.error(err);
       alert(err.message || 'Unable to reject request');

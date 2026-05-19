@@ -5,9 +5,9 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useNotifications } from '@/lib/useNotifications';
 
 export default function NotificationBell() {
-  const { user } = useAuthContext();
-  const { notifications } = useNotifications(user?.uid);
-  const unreadCount = notifications.filter((notification) => !notification.isRead).length;
+  const { user, isAdmin } = useAuthContext();
+  const { notifications = [] } = useNotifications(user?.uid, isAdmin);
+  const unreadCount = (notifications || []).filter((notification) => !notification.isRead).length;
 
   return (
     <Link
