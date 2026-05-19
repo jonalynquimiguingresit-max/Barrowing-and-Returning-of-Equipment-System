@@ -1,6 +1,6 @@
  'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProtectedLayout from '@/components/ProtectedLayout';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useNotifications } from '@/lib/useNotifications';
@@ -64,7 +64,7 @@ export default function NotificationsPage() {
   };
 
   // Remove stale action_required notifications whose related borrow request is no longer pending
-  React.useEffect(() => {
+  useEffect(() => {
     if (loading || !notifications || notifications.length === 0) return;
     const cleanup = async () => {
       for (const notification of notifications) {
