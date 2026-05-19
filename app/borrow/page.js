@@ -99,10 +99,7 @@ function BorrowForm() {
       }
 
       setSuccess('Equipment borrowed successfully! You can now manage your borrowed items.');
-<<<<<<< HEAD
-=======
       notify({ type: 'success', message: 'Equipment borrowed successfully! You can now manage your borrowed items.' });
->>>>>>> 103d722 (feat(notifications): add NotificationContext and Notifications UI; integrate into borrow/return flows)
       setFormData({
         equipmentId: '',
         borrowDate: new Date().toISOString().split('T')[0],
@@ -115,10 +112,7 @@ function BorrowForm() {
       }, 2000);
     } catch (err) {
       setError(err.message || 'Failed to borrow equipment');
-<<<<<<< HEAD
-=======
       notify({ type: 'error', message: err.message || 'Failed to borrow equipment' });
->>>>>>> 103d722 (feat(notifications): add NotificationContext and Notifications UI; integrate into borrow/return flows)
     } finally {
       setLoading(false);
     }

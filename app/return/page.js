@@ -115,19 +115,13 @@ function ReturnForm() {
       }
 
       setSuccess('Equipment returned successfully! Thank you!');
-<<<<<<< HEAD
-=======
       notify({ type: 'success', message: 'Equipment returned successfully! Thank you!' });
->>>>>>> 103d722 (feat(notifications): add NotificationContext and Notifications UI; integrate into borrow/return flows)
       setTimeout(() => {
         router.push('/my-borrows');
       }, 2000);
     } catch (err) {
       setError(err.message || 'Failed to return equipment');
-<<<<<<< HEAD
-=======
       notify({ type: 'error', message: err.message || 'Failed to return equipment' });
->>>>>>> 103d722 (feat(notifications): add NotificationContext and Notifications UI; integrate into borrow/return flows)
     } finally {
       setSubmitting(false);
     }
