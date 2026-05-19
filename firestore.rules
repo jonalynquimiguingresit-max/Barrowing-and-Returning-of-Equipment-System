@@ -52,5 +52,23 @@ service cloud.firestore {
         request.auth.uid == resource.data.userId || isAdmin()
       );
     }
+
+    // Notifications: any authenticated user may create notification entries for system flows.
+    // Users may read their own notifications, and admins may read all notifications.
+    match /notifications/{notificationId} {
+      allow create: if isAuth()
+        && request.resource.data.userId is string
+        && request.resource.data.message is string
+        && request.resource.data.type is string;
+
+      allow read: if isAuth() && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+
+      allow update: if isAuth() && request.auth.uid == resource.data.userId;
+      allow delete: if isAuth() && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+    }
   }
 }
