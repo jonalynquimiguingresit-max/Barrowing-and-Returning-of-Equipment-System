@@ -41,11 +41,11 @@ service cloud.firestore {
     }
 
     // Borrow records: creation allowed by authenticated user when they set userId to themselves
-    // and status must be 'borrowed'. Reads/updates allowed to owner and admins.
+    // and status must be 'requested' or 'borrowed'. Reads/updates allowed to owner and admins.
     match /borrowRecords/{recordId} {
       allow create: if isAuth()
         && request.auth.uid == request.resource.data.userId
-        && request.resource.data.status == 'borrowed'
+        && (request.resource.data.status == 'borrowed' || request.resource.data.status == 'requested')
         && request.resource.data.equipmentId is string;
 
       allow read, update, delete: if isAuth() && (

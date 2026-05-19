@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/contexts/AuthContext';
+import NotificationBell from '@/components/NotificationBell';
 import { useState } from 'react';
 
 export default function Navigation() {
@@ -80,6 +81,7 @@ export default function Navigation() {
                 <span>Admin Panel</span>
               </Link>
             )}
+            <NotificationBell />
 
             <div className="ml-4 pl-4 border-l border-white border-opacity-20">
               <div className="flex items-center space-x-3">
@@ -163,6 +165,14 @@ export default function Navigation() {
             >
               <span>📊</span>
               <span>History</span>
+            </Link>
+            <Link
+              href="/notifications"
+              className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all duration-200"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span>🔔</span>
+              <span>Notifications</span>
             </Link>
             {isAdmin && (
               <Link

@@ -4,10 +4,11 @@ import ProtectedLayout from '@/components/ProtectedLayout';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useEquipment } from '@/lib/useFirebase';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, getDoc, query, where, getDocs } from 'firebase/firestore';
 import { useState, Suspense } from 'react';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { sendNotificationToAdmins } from '@/lib/notificationService';
 
 function BorrowForm() {
   const { user } = useAuthContext();
@@ -57,8 +58,8 @@ function BorrowForm() {
         throw new Error('Equipment not found');
       }
 
-      // Add borrow record to Firestore
-      await addDoc(collection(db, 'borrowRecords'), {
+      // Create borrow request in Firestore for admin approval
+      const borrowRequestRef = await addDoc(collection(db, 'borrowRecords'), {
         userId: user.uid,
         userEmail: user.email,
         equipmentId: formData.equipmentId,
@@ -66,40 +67,23 @@ function BorrowForm() {
         borrowDate: new Date(formData.borrowDate),
         expectedReturnDate: new Date(formData.expectedReturnDate),
         actualReturnDate: null,
-        status: 'borrowed',
+        status: 'requested',
         notes: formData.notes,
         createdAt: serverTimestamp(),
       });
 
-      // Update equipment available count and status
       try {
-        const equipmentRef = doc(db, 'equipment', formData.equipmentId);
-        const snap = await getDoc(equipmentRef);
-        const data = snap.exists() ? snap.data() : {};
-        const qty = data.quantity != null ? parseInt(data.quantity) : 1;
-        const available = data.availableCount != null ? parseInt(data.availableCount) : qty;
-        if (available <= 0) {
-          throw new Error('Selected equipment is no longer available');
-        }
-        const newAvailable = available - 1;
-        const newStatus = newAvailable > 0 ? 'available' : 'borrowed';
-        const updatePayload = {
-          availableCount: newAvailable,
-          status: newStatus,
-          updatedAt: serverTimestamp(),
-        };
-        // If item has quantity 1, set currentBorrower for compatibility
-        if (qty === 1) {
-          updatePayload.currentBorrower = user.uid;
-          updatePayload.currentBorrowerEmail = user.email;
-        }
-        await updateDoc(equipmentRef, updatePayload);
+        await sendNotificationToAdmins(
+          `Borrow request for "${selectedEquipment.name}" by ${user.email} requires approval.`,
+          'action_required',
+          borrowRequestRef.id
+        );
       } catch (err) {
-        console.error('Failed to update equipment availability:', err);
+        console.error('Failed to notify admins of borrow request:', err);
       }
 
-      setSuccess('Equipment borrowed successfully! You can now manage your borrowed items.');
-      notify({ type: 'success', message: 'Equipment borrowed successfully! You can now manage your borrowed items.' });
+      setSuccess('Borrow request submitted successfully. An admin will approve or reject your request soon.');
+      notify({ type: 'success', message: 'Borrow request submitted successfully. An admin will approve or reject your request soon.' });
       setFormData({
         equipmentId: '',
         borrowDate: new Date().toISOString().split('T')[0],
