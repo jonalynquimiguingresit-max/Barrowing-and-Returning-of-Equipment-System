@@ -4,7 +4,7 @@ import { useState } from 'react';
 import ProtectedLayout from '@/components/ProtectedLayout';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useNotifications } from '@/lib/useNotifications';
-import { deleteNotification, sendUserNotification } from '@/lib/notificationService';
+import { deleteNotification, sendUserNotification, markNotificationRead, markAllNotificationsRead } from '@/lib/notificationService';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useNotification } from '@/contexts/NotificationContext';
@@ -13,6 +13,8 @@ export default function NotificationsPage() {
   const { user, isAdmin } = useAuthContext();
   const { notifications, loading } = useNotifications(user?.uid, isAdmin);
   const [processing, setProcessing] = useState(false);
+  const [markingId, setMarkingId] = useState(null);
+  const [markingAll, setMarkingAll] = useState(false);
   const { notify } = useNotification();
 
   const createActionNotification = async (borrowReq, approved) => {
@@ -32,6 +34,32 @@ export default function NotificationsPage() {
         console.error('Notification UI unavailable:', e);
       }
       throw err;
+    }
+  };
+
+  const handleMarkRead = async (notification) => {
+    if (!notification?.id || notification.isRead) return;
+    setMarkingId(notification.id);
+    try {
+      await markNotificationRead(notification.id);
+    } catch (err) {
+      console.error('Failed to mark notification read:', err);
+    } finally {
+      setMarkingId(null);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    if (!user?.uid || notifications.length === 0) return;
+    setMarkingAll(true);
+    try {
+      await markAllNotificationsRead(user.uid);
+      notify({ type: 'success', message: 'All notifications marked as read.' });
+    } catch (err) {
+      console.error('Failed to mark all notifications read:', err);
+      notify({ type: 'error', message: 'Unable to mark all notifications as read.' });
+    } finally {
+      setMarkingAll(false);
     }
   };
 
@@ -126,6 +154,15 @@ export default function NotificationsPage() {
               <h1 className="text-4xl font-bold text-gray-900 mb-2">Notifications</h1>
               <p className="text-gray-600">Your system notifications are listed below.</p>
             </div>
+            {notifications.length > 0 && (
+              <button
+                onClick={handleMarkAllRead}
+                disabled={markingAll || processing}
+                className="self-start inline-flex items-center px-4 py-2 rounded-full bg-slate-100 text-slate-900 hover:bg-slate-200 transition disabled:opacity-50"
+              >
+                {markingAll ? 'Marking...' : 'Mark all read'}
+              </button>
+            )}
           </div>
 
           {loading ? (
@@ -145,7 +182,11 @@ export default function NotificationsPage() {
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`bg-white rounded-3xl border p-5 shadow-sm transition-all duration-200 ${notification.isRead ? 'border-gray-200' : 'border-blue-400 ring-1 ring-blue-100'}`}
+                  onClick={(e) => {
+                    if (e.target.closest('button')) return;
+                    handleMarkRead(notification);
+                  }}
+                  className={`cursor-pointer bg-white rounded-3xl border p-5 shadow-sm transition-all duration-200 ${notification.isRead ? 'border-gray-200' : 'border-blue-400 ring-1 ring-blue-100'}`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-2">
