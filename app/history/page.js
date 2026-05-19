@@ -60,7 +60,8 @@ export default function HistoryPage() {
             </div>
           ) : (
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden card-hover">
-              <div className="overflow-x-auto">
+              {/* Desktop/table view */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
@@ -140,6 +141,36 @@ export default function HistoryPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile/card view */}
+              <div className="md:hidden space-y-3 p-3">
+                {records.map((record) => (
+                  <div key={record.id} className="bg-white border rounded-lg p-3 shadow-sm">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm">🔧</span>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-900">{record.equipmentName}</div>
+                          <div className="text-xs text-gray-500">Borrowed: {formatDate(record.borrowDate)}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-semibold">{record.status === 'returned' ? 'Returned' : 'Active'}</div>
+                        <div className="text-xs text-gray-500">{getDaysBorrowed(record.borrowDate, record.actualReturnDate || record.expectedReturnDate)} days</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-600">
+                      <div><strong>Expected:</strong> {formatDate(record.expectedReturnDate)}</div>
+                      <div><strong>Actual:</strong> {record.actualReturnDate ? formatDate(record.actualReturnDate) : 'Not returned'}</div>
+                      <div><strong>Condition:</strong> {record.condition ? record.condition.charAt(0).toUpperCase() + record.condition.slice(1) : 'N/A'}</div>
+                      <div><strong>Days:</strong> {getDaysBorrowed(record.borrowDate, record.actualReturnDate || record.expectedReturnDate)} days</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
