@@ -144,3 +144,53 @@ select:focus {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
+
+/* Responsive fixes for small screens */
+@media (max-width: 640px) {
+  /* Reduce hover transforms to avoid overlaps */
+  .card-hover:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-hover:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Make containers use full width with safe padding */
+  .max-w-2xl, .max-w-7xl, .max-w-screen-lg {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Notifications: use full-width inset to avoid overflowing the viewport */
+  .notifications-container {
+    left: 1rem !important;
+    right: 1rem !important;
+    top: 0.75rem !important;
+    width: auto !important;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .notifications-container > div {
+    width: 100%;
+  }
+
+  /* Make large icons and overflowing elements wrap */
+  img, svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Forms and inputs should not overflow */
+  input, textarea, select {
+    width: 100%;
+  }
+
+  /* Reduce spacing on small screens for headers/cards */
+  .py-8 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+  .px-4 { padding-left: 0.75rem; padding-right: 0.75rem; }
+}

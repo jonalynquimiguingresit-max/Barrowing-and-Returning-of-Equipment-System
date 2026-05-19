@@ -8,7 +8,7 @@ export default function Notifications() {
   if (!notifications || notifications.length === 0) return null;
 
   return (
-    <div className="fixed top-6 right-6 z-[9999] space-y-3">
+    <div className="notifications-container fixed top-6 right-6 z-[9999] space-y-3">
       {notifications.map((n) => (
         <div
           key={n.id}
