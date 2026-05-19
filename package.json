@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:notifications": "node scripts/test-notifications.js"
   },
   "dependencies": {
     "firebase": "^12.13.0",
@@ -16,5 +17,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4"
+  },
+  "optionalDependencies": {
+    "firebase-admin": "^12.3.0"
   }
 }
