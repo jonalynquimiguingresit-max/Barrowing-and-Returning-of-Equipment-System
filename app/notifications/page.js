@@ -4,7 +4,7 @@ import { useState } from 'react';
 import ProtectedLayout from '@/components/ProtectedLayout';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useNotifications } from '@/lib/useNotifications';
-import { markNotificationRead, sendUserNotification } from '@/lib/notificationService';
+import { deleteNotification, sendUserNotification } from '@/lib/notificationService';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useNotification } from '@/contexts/NotificationContext';
@@ -78,7 +78,7 @@ export default function NotificationsPage() {
         approvedAt: serverTimestamp(),
       });
       await createActionNotification({ ...borrowData, id: borrowSnapshot.id }, true);
-      await markNotificationRead(notification.id);
+      await deleteNotification(notification.id);
       notify({ type: 'success', message: 'Borrowing request approved successfully.' });
     } catch (err) {
       console.error(err);
@@ -107,7 +107,7 @@ export default function NotificationsPage() {
         rejectedAt: serverTimestamp(),
       });
       await createActionNotification({ ...borrowData, id: borrowSnapshot.id }, false);
-      await markNotificationRead(notification.id);
+      await deleteNotification(notification.id);
       notify({ type: 'success', message: 'Borrowing request rejected successfully.' });
     } catch (err) {
       console.error(err);
