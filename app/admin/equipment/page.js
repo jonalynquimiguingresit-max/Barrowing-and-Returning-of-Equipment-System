@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, deleteDoc, doc, updateDoc, getDocs, getDoc, serverTimestamp } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useNotification } from '@/contexts/NotificationContext';
 
 export default function AdminEquipmentPage() {
   const { isAdmin, loading: authLoading } = useAuthContext();
@@ -24,6 +25,7 @@ export default function AdminEquipmentPage() {
 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { notify } = useNotification();
 
   // Check admin access
   if (authLoading) {
@@ -86,6 +88,10 @@ export default function AdminEquipmentPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadEquipment();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
