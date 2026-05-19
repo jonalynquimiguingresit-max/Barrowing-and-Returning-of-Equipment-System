@@ -13,10 +13,14 @@ export function NotificationProvider({ children }) {
     setNotifications((prev) => [...prev, { id, type, message }]);
 
     if (duration > 0) {
-      timers.current[id] = setTimeout(() => {
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
-        delete timers.current[id];
-      }, duration);
+      timers.current[id] = {
+        timeout: setTimeout(() => {
+          setNotifications((prev) => prev.filter((n) => n.id !== id));
+          delete timers.current[id];
+        }, duration),
+        remaining: duration,
+        start: Date.now(),
+      };
     }
 
     return id;
@@ -25,13 +29,36 @@ export function NotificationProvider({ children }) {
   const dismiss = useCallback((id) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     if (timers.current[id]) {
-      clearTimeout(timers.current[id]);
+      clearTimeout(timers.current[id].timeout);
       delete timers.current[id];
     }
   }, []);
 
+  const pause = useCallback((id) => {
+    const t = timers.current[id];
+    if (!t) return;
+    // calculate remaining
+    const elapsed = Date.now() - (t.start || Date.now());
+    const remaining = (t.remaining || 0) - elapsed;
+    clearTimeout(t.timeout);
+    timers.current[id] = { ...t, remaining: remaining > 0 ? remaining : 0 };
+  }, []);
+
+  const resume = useCallback((id) => {
+    const t = timers.current[id];
+    if (!t || !t.remaining) return;
+    timers.current[id] = {
+      timeout: setTimeout(() => {
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        delete timers.current[id];
+      }, t.remaining),
+      remaining: t.remaining,
+      start: Date.now(),
+    };
+  }, []);
+
   return (
-    <NotificationContext.Provider value={{ notifications, notify, dismiss }}>
+    <NotificationContext.Provider value={{ notifications, notify, dismiss, pause, resume }}>
       {children}
     </NotificationContext.Provider>
   );
