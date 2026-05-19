@@ -6,12 +6,14 @@ import { db } from '@/lib/firebase';
 import { doc, updateDoc, serverTimestamp, collection, getDocs, query, where, getDoc } from 'firebase/firestore';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
+import { useNotification } from '@/contexts/NotificationContext';
 
 function ReturnForm() {
   const { user } = useAuthContext();
   const searchParams = useSearchParams();
   const router = useRouter();
   const borrowId = searchParams.get('borrow');
+  const { notify } = useNotification();
 
   const [borrowRecord, setBorrowRecord] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -113,11 +115,19 @@ function ReturnForm() {
       }
 
       setSuccess('Equipment returned successfully! Thank you!');
+<<<<<<< HEAD
+=======
+      notify({ type: 'success', message: 'Equipment returned successfully! Thank you!' });
+>>>>>>> 103d722 (feat(notifications): add NotificationContext and Notifications UI; integrate into borrow/return flows)
       setTimeout(() => {
         router.push('/my-borrows');
       }, 2000);
     } catch (err) {
       setError(err.message || 'Failed to return equipment');
+<<<<<<< HEAD
+=======
+      notify({ type: 'error', message: err.message || 'Failed to return equipment' });
+>>>>>>> 103d722 (feat(notifications): add NotificationContext and Notifications UI; integrate into borrow/return flows)
     } finally {
       setSubmitting(false);
     }
