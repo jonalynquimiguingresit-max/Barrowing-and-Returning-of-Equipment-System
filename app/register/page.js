@@ -38,8 +38,9 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(email, password, firstName.trim(), lastName.trim());
-      router.push('/dashboard');
+        await register(email, password, firstName.trim(), lastName.trim());
+        // After registration require the user to sign in first
+        router.push('/login');
     } catch (err) {
       setError(err.message || 'Failed to create account');
     } finally {
